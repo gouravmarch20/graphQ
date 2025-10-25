@@ -1,37 +1,48 @@
-import express from "express";
-import { ApolloServer } from "apollo-server-express";
-import cors from "cors";
+import express from 'express';
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@as-integrations/express5';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import http from 'http';
+import { connectDB } from './db.js';
+import typeDefs from './graphql/typeDefs.js';
+import { resolvers } from './graphql/resolvers.js';
 
-// 1️⃣ Define GraphQL schema
-const typeDefs = `
-  type Query {
-    hello: String
-    add(a: Int!, b: Int!): Int
-  }
-`;
+const startServer = async () => {
+  await connectDB(); // Connect to MongoDB
 
-// 2️⃣ Define resolvers
-const resolvers = {
-  Query: {
-    hello: () => "Hello World!",
-    add: (_, { a, b }) => a + b,
-  },
-};
+  const app = express();
+  const httpServer = http.createServer(app);
 
-// 3️⃣ Create Apollo server
-const server = new ApolloServer({ typeDefs, resolvers });
+  // Apollo Server setup
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
 
-const app = express();
-app.use(cors());
-
-// 4️⃣ Start server
-async function startServer() {
+  // Start Apollo Server
   await server.start();
-  server.applyMiddleware({ app, path: "/graphql" });
 
-  app.listen({ port: 4000 }, () =>
-    console.log(`🚀 Server ready at http://localhost:4000/graphql`)
+  // Apply middleware
+  app.use(
+    '/graphql',
+    cors(),
+    express.json(),
+    expressMiddleware(server)
   );
-}
+
+  // Additional middleware
+  app.use(helmet());
+  app.use(morgan('dev'));
+
+  // Start the server
+  const PORT = process.env.PORT || 4000;
+  httpServer.listen(PORT, () =>
+    console.log(`🚀 Server running at http://localhost:${PORT}/graphql`)
+  );
+};
 
 startServer();
