@@ -6,7 +6,6 @@ const typeDefs = gql`
     id: ID!
     name: String!
     email: String!
-    projects: [Project!]
   }
 
   type ProjectMember {
@@ -62,10 +61,25 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createProject(name: String!, description: String, members: [ProjectMemberInput!]!): Project!
-    createTask(projectId: ID!, title: String!, description: String, assigneeId: ID, labels: [String!]): Task!
+    createProject(
+      name: String!
+      description: String
+      members: [ProjectMemberInput!]!
+    ): Project!
+    createTask(
+      projectId: ID!
+      title: String!
+      description: String
+      assigneeId: ID
+      labels: [String!]
+    ): Task!
     createSubtask(taskId: ID!, title: String!, assigneeId: ID): Subtask!
-    addComment(taskId: ID!, userId: ID!, content: String!, parentCommentId: ID): Comment!
+    addComment(
+      taskId: ID!
+      userId: ID!
+      content: String!
+      parentCommentId: ID
+    ): Comment!
     updateTaskStatus(taskId: ID!, status: String!): Task!
   }
 

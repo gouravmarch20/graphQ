@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 
 const projectMemberSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  role: { type: String, enum: ["Admin", "Member", "Guest"], default: "Member" },
+  role: {
+    type: String,
+    enum: ["admin", "member", "viewer", "Manager", "Developer", "Designer"],
+    default: "Member",
+  },
 });
 
 const projectSchema = new mongoose.Schema({

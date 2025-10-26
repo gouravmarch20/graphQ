@@ -8,7 +8,7 @@ const taskSchema = new mongoose.Schema({
   assignee: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   status: {
     type: String,
-    enum: ["todo", "inprogress", "done"],
+    enum: ["todo", "in_progress", "done"],
     default: "todo",
   },
   subtasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subtask" }],
